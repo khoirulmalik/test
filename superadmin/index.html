@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Super Admin Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js" defer></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        display: flex;
+      }
+      .sidebar {
+        width: 250px;
+        background: #333;
+        color: white;
+        height: 100vh;
+        padding-top: 20px;
+        position: fixed;
+      }
+      .sidebar button {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        border: none;
+        background: none;
+        color: white;
+        text-align: left;
+        cursor: pointer;
+      }
+      .sidebar button:hover {
+        background: #555;
+      }
+      .content {
+        margin-left: 260px;
+        padding: 20px;
+        width: 100%;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+      }
+      th {
+        background-color: #f4f4f4;
+      }
+      button.action-btn {
+        padding: 5px 10px;
+        margin: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <button onclick="showSection('dashboard')">Dashboard</button>
+      <button onclick="showSection('users')">Manajemen Pengguna</button>
+      <button onclick="showSection('tickets')">Kelola Tiket</button>
+      <button onclick="downloadReport()">Unduh Laporan</button>
+    </div>
+
+    <!-- Konten -->
+    <div class="content">
+      <section id="dashboard">
+        <h2>Super Admin Dashboard</h2>
+        <p>Selamat datang di dashboard Super Admin.</p>
+      </section>
+
+      <!-- Manajemen Pengguna -->
+      <section id="users" style="display: none">
+        <h3>Manajemen Pengguna</h3>
+        <button class="action-btn" onclick="addUser()">Tambah Pengguna</button>
+        <table>
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="userList"></tbody>
+        </table>
+      </section>
+
+      <!-- Manajemen Tiket -->
+      <section id="tickets" style="display: none">
+        <h3>Kelola Tiket</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID Tiket</th>
+              <th>Kategori</th>
+              <th>Prioritas</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="ticketList"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <script>
+      function showSection(sectionId) {
+        document.querySelectorAll("section").forEach((section) => {
+          section.style.display = "none";
+        });
+        document.getElementById(sectionId).style.display = "block";
+      }
+
+      function downloadReport() {
+        alert("Fitur Unduh Laporan akan segera tersedia!");
+      }
+
+      function addUser() {
+        alert("Fitur Tambah Pengguna akan segera tersedia!");
+      }
+    </script>
+  </body>
+</html>

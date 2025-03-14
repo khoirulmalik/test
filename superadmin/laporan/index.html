@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ticket Report</title>
+    <style>
+      /* Reset CSS */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      /* Layout utama */
+      body {
+        display: flex;
+        height: 100vh;
+        background-color: #f4f4f4;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 15rem;
+        background: #104b5a; /* Base color */
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #104b5a; /* Base color */
+        margin-bottom: 1rem;
+      }
+
+      .user-info {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .user-info h3 {
+        font-size: 1.2rem;
+      }
+
+      .user-info p {
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      .sidebar a {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        margin: 0.3rem 0;
+        color: white;
+        text-decoration: none;
+        text-align: center;
+        border-radius: 0.3rem;
+      }
+
+      .sidebar a:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .logout-btn {
+        margin-top: auto;
+        background: #ff4d4d;
+        padding: 0.75rem;
+        width: 100%;
+        text-align: center;
+        border-radius: 0.3rem;
+        cursor: pointer;
+      }
+
+      .logout-btn:hover {
+        background: #cc0000;
+      }
+
+      /* Konten utama */
+      .main-content {
+        flex: 1;
+        padding: 2rem;
+        overflow-x: auto; /* Untuk tabel yang lebar */
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 1rem;
+        color: #104b5a; /* Base color */
+      }
+
+      /* Container dan tabel */
+      .container {
+        width: 100%;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+
+      th {
+        background-color: #104b5a; /* Base color */
+        color: white;
+      }
+
+      /* Styling untuk urgensi */
+      .urgency-high {
+        background-color: #ffcccc;
+        color: #cc0000;
+        padding: 5px;
+        border-radius: 4px;
+        text-align: center;
+      }
+
+      .urgency-medium {
+        background-color: #fff3cc;
+        color: #cc9900;
+        padding: 5px;
+        border-radius: 4px;
+        text-align: center;
+      }
+
+      .urgency-low {
+        background-color: #ccffcc;
+        color: #006600;
+        padding: 5px;
+        border-radius: 4px;
+        text-align: center;
+      }
+
+      /* Dropdown status */
+      .status-dropdown {
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .close-btn {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+
+      /* Style untuk filter */
+      .filters {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 1rem;
+        flex-wrap: wrap; /* Untuk tampilan mobile */
+      }
+
+      .filters input,
+      .filters select {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        flex: 1; /* Agar input dan select fleksibel */
+      }
+
+      /* Style untuk pagination */
+      #pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 1rem;
+      }
+
+      #pagination button {
+        padding: 5px 10px;
+        background-color: #104b5a; /* Base color */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      #pagination button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      /* Tombol ekspor */
+      #exportBtn {
+        padding: 10px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 1rem;
+      }
+
+      #exportBtn:hover {
+        background-color: #218838;
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          height: auto;
+          flex-direction: row;
+          justify-content: space-around;
+          padding: 1rem;
+        }
+
+        .avatar {
+          display: none;
+        }
+
+        .user-info {
+          display: none;
+        }
+
+        .main-content {
+          padding: 1rem;
+        }
+
+        .filters {
+          flex-direction: column;
+        }
+
+        table {
+          font-size: 14px;
+        }
+
+        th,
+        td {
+          padding: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="avatar">👤</div>
+      <div class="user-info">
+        <h3>John Doe</h3>
+        <p>Super Admin</p>
+      </div>
+
+      <a href="../dashboard/dashboard.html">Dashboard</a>
+      <a href="../laporan/index.html">Report</a>
+      <a href="../manajemen_pengguna/index.html">User Management</a>
+      <a href="pengaturan.html">Settings</a>
+
+      <div class="logout-btn" onclick="logout()">Logout</div>
+    </div>
+
+    <!-- Konten utama -->
+    <div class="main-content">
+      <h2>Ticket Report</h2>
+      <div class="container">
+        <!-- Tombol ekspor -->
+        <button id="exportBtn">Export to Excel</button>
+
+        <!-- Filter dan Pencarian -->
+        <div class="filters">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by Ticket ID, Reporter, or Division..."
+          />
+          <select id="statusFilter">
+            <option value="">All Status</option>
+            <option value="Completed">Completed</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Pending">Pending</option>
+          </select>
+          <select id="urgencyFilter">
+            <option value="">All Urgency</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+          <select id="divisionFilter">
+            <option value="">All Division</option>
+            <option value="Network">Network</option>
+            <option value="IT">IT</option>
+            <option value="HR">HR</option>
+            <option value="Finance">Finance</option>
+          </select>
+        </div>
+
+        <!-- Tabel -->
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Ticket ID</th>
+              <th>Reporter</th>
+              <th>Unit</th>
+              <th>Location</th>
+              <th>Division</th>
+              <th>Urgency</th>
+              <th>Summary</th>
+              <th>Created At</th>
+              <th>Completed At</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="ticketTableBody"></tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div id="pagination">
+          <button id="prevPage">⏪ Previous</button>
+          <span id="pageNumber">1</span>
+          <button id="nextPage">Next ⏩</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Detail Tiket -->
+    <div id="ticketModal" class="modal">
+      <div class="modal-content">
+        <h3>Ticket Details</h3>
+        <p><strong>Ticket ID:</strong> <span id="detailTicketID"></span></p>
+        <p><strong>Reporter:</strong> <span id="detailReporter"></span></p>
+        <p><strong>Division:</strong> <span id="detailDivision"></span></p>
+        <p><strong>Unit:</strong> <span id="detailUnit"></span></p>
+        <p><strong>Location:</strong> <span id="detailLocation"></span></p>
+        <p><strong>SLA:</strong> <span id="detailSLA"></span></p>
+        <p>
+          <strong>Problem Summary:</strong> <span id="detailSummary"></span>
+        </p>
+        <p><strong>Problem Detail:</strong> <span id="detailDetail"></span></p>
+        <p><strong>Attachment:</strong> <span id="detailAttachment"></span></p>
+        <button class="close-btn" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+
+    <script>
+      let tickets = [
+        {
+          id: "TKT-250313-100636",
+          reporter: "Budi Santoso",
+          unit: "IT",
+          location: "Jakarta",
+          division: "Network",
+          urgency: "Low",
+          sla: "48 Hours",
+          summary: "VPN connection issue",
+          detail: "VPN has been down since this morning.",
+          attachment: "screenshot-vpn.png",
+          status: "Completed",
+          createdAt: "2023-10-01 10:00",
+          completedAt: "2023-10-02 14:00",
+        },
+        {
+          id: "TKT-250313-100637",
+          reporter: "Ani Rahayu",
+          unit: "HR",
+          location: "Surabaya",
+          division: "HR",
+          urgency: "Medium",
+          sla: "24 Hours",
+          summary: "Payroll issue",
+          detail: "This month's payroll has not been processed.",
+          attachment: "payroll.xlsx",
+          status: "In Progress",
+          createdAt: "2023-10-03 09:00",
+          completedAt: null,
+        },
+        {
+          id: "TKT-250313-100638",
+          reporter: "Cahyo Pratama",
+          unit: "IT",
+          location: "Jakarta",
+          division: "IT",
+          urgency: "High",
+          sla: "12 Hours",
+          summary: "Server down",
+          detail: "Main server is not responding.",
+          attachment: "server-log.txt",
+          status: "Pending",
+          createdAt: "2023-10-04 08:00",
+          completedAt: null,
+        },
+        // Add more dummy data here...
+      ];
+
+      let filteredTickets = [...tickets];
+      let currentPage = 1;
+      let entriesPerPage = 10;
+
+      // Render ticket table
+      function renderTickets() {
+        let ticketTableBody = document.getElementById("ticketTableBody");
+        let start = (currentPage - 1) * entriesPerPage;
+        let end = start + entriesPerPage;
+        let paginatedTickets = filteredTickets.slice(start, end);
+
+        ticketTableBody.innerHTML = paginatedTickets
+          .map(
+            (ticket, index) => `
+          <tr>
+            <td>${start + index + 1}</td>
+            <td>${ticket.id}</td>
+            <td>${ticket.reporter}</td>
+            <td>${ticket.unit}</td>
+            <td>${ticket.location}</td>
+            <td>${ticket.division}</td>
+            <td class="urgency-${ticket.urgency.toLowerCase()}">${
+              ticket.urgency
+            }</td>
+            <td>${ticket.summary}</td>
+            <td>${ticket.createdAt}</td>
+            <td>${ticket.completedAt || "-"}</td>
+            <td>
+              <select class="status-dropdown" onchange="updateStatus(${
+                start + index
+              }, this.value)">
+                <option value="Completed" ${
+                  ticket.status === "Completed" ? "selected" : ""
+                }>Completed</option>
+                <option value="In Progress" ${
+                  ticket.status === "In Progress" ? "selected" : ""
+                }>In Progress</option>
+                <option value="Pending" ${
+                  ticket.status === "Pending" ? "selected" : ""
+                }>Pending</option>
+              </select>
+            </td>
+            <td><button onclick="viewDetail(${
+              start + index
+            })">Details</button></td>
+          </tr>`
+          )
+          .join("");
+
+        // Update pagination
+        document.getElementById("pageNumber").innerText = currentPage;
+        document.getElementById("prevPage").disabled = currentPage === 1;
+        document.getElementById("nextPage").disabled =
+          end >= filteredTickets.length;
+      }
+
+      // Update ticket status
+      function updateStatus(index, newStatus) {
+        tickets[index].status = newStatus;
+        if (newStatus === "Completed") {
+          tickets[index].completedAt = new Date().toLocaleString();
+        } else {
+          tickets[index].completedAt = null;
+        }
+        filteredTickets = [...tickets];
+        renderTickets();
+      }
+
+      // Apply filters
+      function applyFilters() {
+        let searchQuery = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        let statusFilter = document.getElementById("statusFilter").value;
+        let urgencyFilter = document.getElementById("urgencyFilter").value;
+        let divisionFilter = document.getElementById("divisionFilter").value;
+
+        filteredTickets = tickets.filter((ticket) => {
+          let matchesSearch =
+            ticket.id.toLowerCase().includes(searchQuery) ||
+            ticket.reporter.toLowerCase().includes(searchQuery) ||
+            ticket.division.toLowerCase().includes(searchQuery);
+
+          let matchesStatus =
+            statusFilter === "" || ticket.status === statusFilter;
+
+          let matchesUrgency =
+            urgencyFilter === "" || ticket.urgency === urgencyFilter;
+
+          let matchesDivision =
+            divisionFilter === "" || ticket.division === divisionFilter;
+
+          return (
+            matchesSearch && matchesStatus && matchesUrgency && matchesDivision
+          );
+        });
+
+        currentPage = 1;
+        renderTickets();
+      }
+
+      // Event listeners for filters
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", applyFilters);
+      document
+        .getElementById("statusFilter")
+        .addEventListener("change", applyFilters);
+      document
+        .getElementById("urgencyFilter")
+        .addEventListener("change", applyFilters);
+      document
+        .getElementById("divisionFilter")
+        .addEventListener("change", applyFilters);
+
+      // Pagination
+      document
+        .getElementById("prevPage")
+        .addEventListener("click", function () {
+          if (currentPage > 1) {
+            currentPage--;
+            renderTickets();
+          }
+        });
+
+      document
+        .getElementById("nextPage")
+        .addEventListener("click", function () {
+          if (currentPage * entriesPerPage < filteredTickets.length) {
+            currentPage++;
+            renderTickets();
+          }
+        });
+
+      // View ticket details
+      function viewDetail(index) {
+        let ticket = filteredTickets[index];
+        document.getElementById("detailTicketID").innerText = ticket.id;
+        document.getElementById("detailReporter").innerText = ticket.reporter;
+        document.getElementById("detailDivision").innerText = ticket.division;
+        document.getElementById("detailUnit").innerText = ticket.unit;
+        document.getElementById("detailLocation").innerText = ticket.location;
+        document.getElementById("detailSLA").innerText = ticket.sla;
+        document.getElementById("detailSummary").innerText = ticket.summary;
+        document.getElementById("detailDetail").innerText = ticket.detail;
+        document.getElementById("detailAttachment").innerText =
+          ticket.attachment;
+
+        document.getElementById("ticketModal").style.display = "flex";
+      }
+
+      // Close modal
+      function closeModal() {
+        document.getElementById("ticketModal").style.display = "none";
+      }
+
+      // Export to Excel
+      document
+        .getElementById("exportBtn")
+        .addEventListener("click", function () {
+          let wsData = [
+            [
+              "No",
+              "Ticket ID",
+              "Reporter",
+              "Unit",
+              "Location",
+              "Division",
+              "Urgency",
+              "Summary",
+              "Created At",
+              "Completed At",
+              "Status",
+            ],
+            ...filteredTickets.map((ticket, index) => [
+              index + 1,
+              ticket.id,
+              ticket.reporter,
+              ticket.unit,
+              ticket.location,
+              ticket.division,
+              ticket.urgency,
+              ticket.summary,
+              ticket.createdAt,
+              ticket.completedAt || "-",
+              ticket.status,
+            ]),
+          ];
+
+          let wb = XLSX.utils.book_new();
+          let ws = XLSX.utils.aoa_to_sheet(wsData);
+          XLSX.utils.book_append_sheet(wb, ws, "Tickets");
+          XLSX.writeFile(wb, "tickets.xlsx");
+        });
+
+      // Initial render
+      window.onload = function () {
+        renderTickets();
+      };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  </body>
+</html>

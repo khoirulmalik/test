@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Helpdesk Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        display: flex;
+        height: 100vh;
+        background-color: #f4f4f4;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 15rem;
+        background: #104b5a; /* Base color */
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #104b5a; /* Base color */
+        margin-bottom: 1rem;
+      }
+
+      .user-info {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .user-info h3 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+
+      .user-info p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      .sidebar a {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        margin: 0.3rem 0;
+        color: white;
+        text-decoration: none;
+        text-align: center;
+        border-radius: 0.3rem;
+      }
+
+      .sidebar a:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .logout-btn {
+        margin-top: auto;
+        background: #ff4d4d;
+        padding: 0.75rem;
+        width: 100%;
+        text-align: center;
+        border-radius: 0.3rem;
+        cursor: pointer;
+      }
+
+      .logout-btn:hover {
+        background: #cc0000;
+      }
+
+      /* Hamburger Menu */
+      .hamburger-menu {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 1000;
+        color: #104b5a; /* Base color */
+      }
+
+      /* Main Content */
+      .container {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+      }
+
+      /* Summary */
+      .summary-box {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .dashboard-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      h2 {
+        text-align: center;
+        color: #104b5a; /* Base color */
+      }
+
+      canvas {
+        width: 100%;
+        height: auto;
+      }
+
+      /* Filter Section */
+      .filter-section {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        justify-content: flex-end;
+      }
+
+      .filter-section select {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 0.3rem;
+        font-size: 1rem;
+      }
+
+      /* Recent Tickets Table */
+      .recent-tickets {
+        margin-top: 2rem;
+      }
+
+      .recent-tickets table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .recent-tickets th,
+      .recent-tickets td {
+        padding: 1rem;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+
+      .recent-tickets th {
+        background-color: #104b5a; /* Base color */
+        color: white;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          height: 100vh;
+          transform: translateX(-100%);
+          z-index: 999;
+        }
+
+        .sidebar.open {
+          transform: translateX(0);
+        }
+
+        .hamburger-menu {
+          display: block;
+        }
+
+        .container {
+          padding: 1rem;
+          margin-left: 0;
+        }
+
+        .filter-section {
+          flex-direction: column;
+        }
+
+        .recent-tickets table {
+          font-size: 14px;
+        }
+
+        th,
+        td {
+          padding: 0.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Hamburger Menu -->
+    <div class="hamburger-menu" onclick="toggleSidebar()">&#9776;</div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="avatar">👤</div>
+      <div class="user-info">
+        <h3>John Doe</h3>
+        <p>Super Admin</p>
+      </div>
+
+      <a href="../dashboard/dashboard.html">Dashboard</a>
+      <a href="../laporan/index.html">Reports</a>
+      <a href="../manajemen_pengguna/index.html">User Management</a>
+      <a href="pengaturan.html">Settings</a>
+
+      <div class="logout-btn" onclick="logout()">Logout</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+      <h2>Helpdesk Dashboard</h2>
+
+      <!-- Filter Section -->
+      <div class="filter-section">
+        <select id="timeFilter">
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+        </select>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary-box">
+        <div class="card">
+          <h3>Total Tickets</h3>
+          <p id="totalTickets">0</p>
+        </div>
+        <div class="card">
+          <h3>Open Tickets</h3>
+          <p id="openTickets">0</p>
+        </div>
+        <div class="card">
+          <h3>Closed Tickets</h3>
+          <p id="closedTickets">0</p>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="dashboard-container">
+        <!-- Ticket Categories Chart -->
+        <div class="card">
+          <h3>Ticket Categories</h3>
+          <canvas id="categoryChart"></canvas>
+        </div>
+
+        <!-- Ticket Priority Chart -->
+        <div class="card">
+          <h3>Ticket Priority</h3>
+          <canvas id="priorityChart"></canvas>
+        </div>
+
+        <!-- Ticket Status Chart -->
+        <div class="card">
+          <h3>Ticket Status</h3>
+          <canvas id="statusChart"></canvas>
+        </div>
+
+        <!-- Ticket Trend Chart -->
+        <div class="card">
+          <h3>Ticket Trends</h3>
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Tickets -->
+      <div class="recent-tickets">
+        <h3>Recent Tickets</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th>Reporter</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody id="recentTicketsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      // Toggle Sidebar
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("open");
+      }
+
+      // Close Sidebar when clicking outside
+      document.addEventListener("click", (event) => {
+        const sidebar = document.getElementById("sidebar");
+        const hamburgerMenu = document.querySelector(".hamburger-menu");
+        if (
+          !sidebar.contains(event.target) &&
+          !hamburgerMenu.contains(event.target)
+        ) {
+          sidebar.classList.remove("open");
+        }
+      });
+
+      // Logout Function
+      function logout() {
+        alert("You have been logged out.");
+        window.location.href = "../../login.html"; // Redirect to login page
+      }
+
+      // Dummy Data
+      const ticketData = {
+        totalTickets: 68,
+        openTickets: 24,
+        closedTickets: 44,
+        categories: ["Technical", "Account", "Payment", "Feature"],
+        categoryCounts: [25, 18, 10, 15],
+        priorities: ["Low", "Medium", "High", "Critical"],
+        priorityCounts: [10, 15, 20, 5],
+        statuses: ["New", "In Progress", "Pending", "Closed"],
+        statusCounts: [12, 14, 8, 20],
+        trends: {
+          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+          data: [10, 15, 20, 25, 18, 30],
+        },
+        recentTickets: [
+          {
+            id: "TKT-1001",
+            reporter: "John Doe",
+            category: "Technical",
+            priority: "High",
+            status: "In Progress",
+            createdAt: "2023-10-01 10:00",
+          },
+          {
+            id: "TKT-1002",
+            reporter: "Jane Smith",
+            category: "Account",
+            priority: "Medium",
+            status: "Pending",
+            createdAt: "2023-10-02 14:00",
+          },
+          {
+            id: "TKT-1003",
+            reporter: "Alice Johnson",
+            category: "Payment",
+            priority: "Low",
+            status: "Closed",
+            createdAt: "2023-10-03 09:00",
+          },
+        ],
+      };
+
+      // Update Summary
+      document.getElementById("totalTickets").textContent =
+        ticketData.totalTickets;
+      document.getElementById("openTickets").textContent =
+        ticketData.openTickets;
+      document.getElementById("closedTickets").textContent =
+        ticketData.closedTickets;
+
+      // Update Recent Tickets
+      const recentTicketsBody = document.getElementById("recentTicketsBody");
+      recentTicketsBody.innerHTML = ticketData.recentTickets
+        .map(
+          (ticket) => `
+        <tr>
+          <td>${ticket.id}</td>
+          <td>${ticket.reporter}</td>
+          <td>${ticket.category}</td>
+          <td>${ticket.priority}</td>
+          <td>${ticket.status}</td>
+          <td>${ticket.createdAt}</td>
+        </tr>`
+        )
+        .join("");
+
+      // Chart Data
+      const categoryChart = new Chart(
+        document.getElementById("categoryChart"),
+        {
+          type: "pie",
+          data: {
+            labels: ticketData.categories,
+            datasets: [
+              {
+                label: "Ticket Count",
+                data: ticketData.categoryCounts,
+                backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: "bottom",
+              },
+            },
+          },
+        }
+      );
+
+      const priorityChart = new Chart(
+        document.getElementById("priorityChart"),
+        {
+          type: "doughnut",
+          data: {
+            labels: ticketData.priorities,
+            datasets: [
+              {
+                label: "Ticket Count",
+                data: ticketData.priorityCounts,
+                backgroundColor: ["#4BC0C0", "#FFCE56", "#36A2EB", "#FF6384"],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: "bottom",
+              },
+            },
+          },
+        }
+      );
+
+      const statusChart = new Chart(document.getElementById("statusChart"), {
+        type: "bar",
+        data: {
+          labels: ticketData.statuses,
+          datasets: [
+            {
+              label: "Ticket Count",
+              data: ticketData.statusCounts,
+              backgroundColor: ["#FFCE56", "#36A2EB", "#FF6384", "#4BC0C0"],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+          plugins: {
+            legend: {
+              display: false,
+            },
+          },
+        },
+      });
+
+      const trendChart = new Chart(document.getElementById("trendChart"), {
+        type: "line",
+        data: {
+          labels: ticketData.trends.labels,
+          datasets: [
+            {
+              label: "Tickets",
+              data: ticketData.trends.data,
+              borderColor: "#104b5a" /* Base color */,
+              fill: false,
+              tension: 0.3,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+          plugins: {
+            legend: {
+              position: "bottom",
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

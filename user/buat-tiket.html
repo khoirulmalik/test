@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buat Tiket</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        display: flex;
+        min-height: 100vh;
+        background-color: #f4f4f4;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 15rem;
+        background: #104b5a; /* Base color */
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar.collapsed {
+        transform: translateX(-100%);
+      }
+
+      .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #104b5a; /* Base color */
+        margin-bottom: 1rem;
+      }
+
+      .user-info {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .user-info h3 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+
+      .user-info p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      .sidebar a {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        margin: 0.3rem 0;
+        color: white;
+        text-decoration: none;
+        text-align: center;
+        border-radius: 0.3rem;
+      }
+
+      .sidebar a:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .logout-btn {
+        margin-top: auto;
+        background: #ff4d4d;
+        padding: 0.75rem;
+        width: 100%;
+        text-align: center;
+        border-radius: 0.3rem;
+        cursor: pointer;
+      }
+
+      .logout-btn:hover {
+        background: #cc0000;
+      }
+
+      /* Overlay */
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+        z-index: 999;
+      }
+
+      .overlay.active {
+        display: block; /* Show overlay when sidebar is active */
+      }
+
+      /* Hamburger Menu */
+      .hamburger {
+        display: none;
+        font-size: 2rem;
+        cursor: pointer;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+        color: #104b5a; /* Base color */
+      }
+
+      /* Main Content */
+      .container {
+        flex: 1;
+        padding: 1.5rem;
+      }
+
+      h2 {
+        text-align: center;
+        color: #104b5a; /* Base color */
+      }
+
+      label {
+        margin-top: 10px;
+        font-weight: bold;
+        display: block;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button {
+        margin-top: 15px;
+        background-color: #104b5a; /* Base color */
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+      }
+
+      button:hover {
+        background-color: #0c3a47; /* Darker shade of base color */
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          height: 100vh;
+          transform: translateX(-100%);
+          z-index: 999;
+        }
+
+        .sidebar.active {
+          transform: translateX(0);
+        }
+
+        .hamburger {
+          display: block;
+        }
+
+        .container {
+          padding-top: 60px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Hamburger Menu -->
+    <div class="hamburger" onclick="toggleSidebar()">&#9776;</div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="avatar">👤</div>
+      <div class="user-info">
+        <h3>John Doe</h3>
+        <p>User</p>
+      </div>
+
+      <a href="dashboard.html">Dashboard</a>
+      <a href="buat-tiket.html">Create Ticket</a>
+      <a href="status-tiket.html">Ticket Status</a>
+      <a href="pengaturan.html">Settings</a>
+
+      <div class="logout-btn" onclick="logout()">Logout</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+      <h2>Buat Tiket</h2>
+      <form id="ticketForm">
+        <label for="ticketNumber">Nomor Tiket:</label>
+        <input type="text" id="ticketNumber" name="ticketNumber" readonly />
+
+        <label for="unit">Unit:</label>
+        <select id="unit" name="unit" required>
+          <option value="">Pilih Unit</option>
+          <option value="IT">IT</option>
+          <option value="Operasional">Operasional</option>
+          <option value="Keuangan">Keuangan</option>
+          <option value="HR">HR</option>
+        </select>
+
+        <label for="location">Lokasi:</label>
+        <select id="location" name="location" required>
+          <option value="">Pilih Lokasi</option>
+          <option value="Jakarta">Jakarta</option>
+          <option value="Bandung">Bandung</option>
+          <option value="Surabaya">Surabaya</option>
+          <option value="Yogyakarta">Yogyakarta</option>
+        </select>
+
+        <label for="division">Divisi:</label>
+        <select id="division" name="division" required>
+          <option value="">Pilih Divisi</option>
+          <option value="HR">Human Resources</option>
+          <option value="IT">IT Support</option>
+          <option value="Finance">Finance</option>
+        </select>
+
+        <label for="urgency">Urgensi / SLA:</label>
+        <select id="urgency" name="urgency" required>
+          <option value="">Pilih Urgensi</option>
+          <option value="Low">Low (72 Jam)</option>
+          <option value="Medium">Medium (48 Jam)</option>
+          <option value="High">High (24 Jam)</option>
+          <option value="Critical">Critical (8 Jam)</option>
+        </select>
+
+        <label for="summary">Problem Summary:</label>
+        <input
+          type="text"
+          id="summary"
+          name="summary"
+          placeholder="Ringkasan masalah"
+          required
+        />
+
+        <label for="details">Problem Detail:</label>
+        <textarea
+          id="details"
+          name="details"
+          rows="4"
+          placeholder="Jelaskan masalah secara rinci"
+          required
+        ></textarea>
+
+        <label for="attachment">Attachment:</label>
+        <input type="file" id="attachment" name="attachment" />
+
+        <button type="submit">Kirim Tiket</button>
+      </form>
+    </div>
+
+    <script>
+      // Toggle sidebar on mobile
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
+
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+      }
+
+      // Close sidebar when clicking outside
+      function closeSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
+
+        sidebar.classList.remove("active");
+        overlay.classList.remove("active");
+      }
+
+      // Logout Function
+      function logout() {
+        alert("You have been logged out.");
+        window.location.href = "../login.html"; // Redirect to login page
+      }
+
+      // Generate Nomor Tiket Otomatis
+      function generateTicketNumber() {
+        const now = new Date();
+        const timestamp =
+          now.getFullYear().toString().slice(-2) +
+          ("0" + (now.getMonth() + 1)).slice(-2) +
+          ("0" + now.getDate()).slice(-2) +
+          "-" +
+          ("0" + now.getHours()).slice(-2) +
+          ("0" + now.getMinutes()).slice(-2) +
+          ("0" + now.getSeconds()).slice(-2);
+        return "TKT-" + timestamp;
+      }
+
+      document.getElementById("ticketNumber").value = generateTicketNumber();
+
+      // Handle form submission
+      document
+        .getElementById("ticketForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const ticketData = {
+            ticketNumber: document.getElementById("ticketNumber").value,
+            unit: document.getElementById("unit").value,
+            location: document.getElementById("location").value,
+            division: document.getElementById("division").value,
+            urgency: document.getElementById("urgency").value,
+            summary: document.getElementById("summary").value,
+            details: document.getElementById("details").value,
+            attachment: document.getElementById("attachment").files[0]
+              ? document.getElementById("attachment").files[0].name
+              : "No file attached",
+          };
+
+          console.log("Tiket berhasil dikirim:", ticketData);
+          alert("Tiket berhasil dikirim!");
+
+          // Reset form dan generate nomor tiket baru
+          document.getElementById("ticketForm").reset();
+          document.getElementById("ticketNumber").value =
+            generateTicketNumber();
+        });
+    </script>
+  </body>
+</html>

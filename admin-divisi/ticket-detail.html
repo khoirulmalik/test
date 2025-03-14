@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Divisi - Ticket Detail</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+      body {
+        display: flex;
+        min-height: 100vh;
+        background-color: #f4f4f4;
+      }
+      .sidebar {
+        width: 15rem;
+        background: #007bff;
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .container {
+        flex: 1;
+        padding: 1.5rem;
+      }
+      .card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+      }
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="avatar">👤</div>
+      <div class="user-info">
+        <h3>Admin Divisi</h3>
+        <p>IT Department</p>
+      </div>
+      <a href="dashboard-admin.html">Dashboard</a>
+      <a href="manage-tickets.html">Manage Tickets</a>
+      <a href="reports.html">Reports</a>
+      <div class="logout-btn" onclick="logout()">Logout</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+      <h2>Ticket Detail - TKT-001</h2>
+      <div class="card">
+        <h3>Summary: Server Down</h3>
+        <p><strong>Status:</strong> <span class="status-open">Open</span></p>
+        <p>
+          <strong>Description:</strong> The server is down and needs immediate
+          attention.
+        </p>
+        <p><strong>Attachments:</strong> <a href="#">server_logs.txt</a></p>
+      </div>
+
+      <div class="card">
+        <h3>Update Status</h3>
+        <select id="statusSelect">
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Resolved">Resolved</option>
+          <option value="Closed">Closed</option>
+        </select>
+        <button onclick="updateStatus()">Update Status</button>
+      </div>
+
+      <div class="card">
+        <h3>Add Comment</h3>
+        <textarea
+          id="comment"
+          rows="4"
+          placeholder="Add a comment..."
+        ></textarea>
+        <button onclick="addComment()">Add Comment</button>
+      </div>
+
+      <div class="card">
+        <h3>Add Attachment</h3>
+        <input type="file" id="attachment" />
+        <button onclick="addAttachment()">Upload</button>
+      </div>
+    </div>
+
+    <script>
+      function logout() {
+        alert("You have been logged out.");
+        window.location.href = "../login.html";
+      }
+
+      function updateStatus() {
+        const status = document.getElementById("statusSelect").value;
+        alert(`Status updated to: ${status}`);
+      }
+
+      function addComment() {
+        const comment = document.getElementById("comment").value;
+        alert(`Comment added: ${comment}`);
+      }
+
+      function addAttachment() {
+        const file = document.getElementById("attachment").files[0];
+        alert(`File uploaded: ${file.name}`);
+      }
+    </script>
+  </body>
+</html>
